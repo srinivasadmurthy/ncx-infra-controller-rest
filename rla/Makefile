@@ -26,11 +26,11 @@ gen-pb: ## Generate protobuf files
 	@echo "Successfully generated protobuf"
 
 gen-carbideapi-pb: ## Generate protobuf files for carbide-api access, only needed for new messages or fields that we will actually use
-	rm -rf ncx-infra-controller-core
-	git clone https://github.com/NVIDIA/ncx-infra-controller-core.git
-	rm -f internal/carbideapi/carbideproto/*.proto
-	cp ncx-infra-controller-core/crates/rpc/proto/*.proto internal/carbideapi/carbideproto/
-	rm -rf ncx-infra-controller-core
+	#rm -rf ncx-infra-controller-core
+	#git clone https://github.com/NVIDIA/ncx-infra-controller-core.git
+	#rm -f internal/carbideapi/carbideproto/*.proto
+	#cp ncx-infra-controller-core/crates/rpc/proto/*.proto internal/carbideapi/carbideproto/
+	#rm -rf ncx-infra-controller-core
 # The protodefs are a bit unclean, and we need to make some tweaks to make them usable.
 	cd internal/carbideapi && ./tweak_protodefs.sh
 # Specify version of buf for consistency in pipeline builds

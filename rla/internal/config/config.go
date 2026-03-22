@@ -36,6 +36,8 @@ type Config struct {
 	UpdateMachineIDsFrequency time.Duration `yaml:"update_machine_ids_frequency"`
 	GRPCTimeout               time.Duration `yaml:"grpc_timeout"`
 	DisableInventory          bool          `yaml:"disable_inventory"`
+	LeakDetectionInterval     time.Duration `yaml:"leak_detection_interval"`
+	DisableLeakDetection      bool          `yaml:"disable_leak_detection"`
 }
 
 // defaultConfig sets up the default values used when something is not specified

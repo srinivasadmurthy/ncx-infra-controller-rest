@@ -205,6 +205,13 @@ const (
 	Forge_ReplaceAllExpectedSwitches_FullMethodName               = "/forge.Forge/ReplaceAllExpectedSwitches"
 	Forge_DeleteAllExpectedSwitches_FullMethodName                = "/forge.Forge/DeleteAllExpectedSwitches"
 	Forge_GetAllExpectedSwitchesLinked_FullMethodName             = "/forge.Forge/GetAllExpectedSwitchesLinked"
+	Forge_AddExpectedRack_FullMethodName                          = "/forge.Forge/AddExpectedRack"
+	Forge_DeleteExpectedRack_FullMethodName                       = "/forge.Forge/DeleteExpectedRack"
+	Forge_UpdateExpectedRack_FullMethodName                       = "/forge.Forge/UpdateExpectedRack"
+	Forge_GetExpectedRack_FullMethodName                          = "/forge.Forge/GetExpectedRack"
+	Forge_GetAllExpectedRacks_FullMethodName                      = "/forge.Forge/GetAllExpectedRacks"
+	Forge_ReplaceAllExpectedRacks_FullMethodName                  = "/forge.Forge/ReplaceAllExpectedRacks"
+	Forge_DeleteAllExpectedRacks_FullMethodName                   = "/forge.Forge/DeleteAllExpectedRacks"
 	Forge_AttestQuote_FullMethodName                              = "/forge.Forge/AttestQuote"
 	Forge_CreateInstanceType_FullMethodName                       = "/forge.Forge/CreateInstanceType"
 	Forge_FindInstanceTypeIds_FullMethodName                      = "/forge.Forge/FindInstanceTypeIds"
@@ -370,6 +377,12 @@ const (
 	Forge_FindMachineIdsUnderAttestation_FullMethodName           = "/forge.Forge/FindMachineIdsUnderAttestation"
 	Forge_FindMachinesUnderAttestation_FullMethodName             = "/forge.Forge/FindMachinesUnderAttestation"
 	Forge_SignMachineIdentity_FullMethodName                      = "/forge.Forge/SignMachineIdentity"
+	Forge_GetIdentityConfiguration_FullMethodName                 = "/forge.Forge/GetIdentityConfiguration"
+	Forge_SetIdentityConfiguration_FullMethodName                 = "/forge.Forge/SetIdentityConfiguration"
+	Forge_DeleteIdentityConfiguration_FullMethodName              = "/forge.Forge/DeleteIdentityConfiguration"
+	Forge_GetTokenDelegation_FullMethodName                       = "/forge.Forge/GetTokenDelegation"
+	Forge_SetTokenDelegation_FullMethodName                       = "/forge.Forge/SetTokenDelegation"
+	Forge_DeleteTokenDelegation_FullMethodName                    = "/forge.Forge/DeleteTokenDelegation"
 	Forge_ScoutStream_FullMethodName                              = "/forge.Forge/ScoutStream"
 	Forge_ScoutStreamShowConnections_FullMethodName               = "/forge.Forge/ScoutStreamShowConnections"
 	Forge_ScoutStreamDisconnect_FullMethodName                    = "/forge.Forge/ScoutStreamDisconnect"
@@ -713,6 +726,21 @@ type ForgeClient interface {
 	DeleteAllExpectedSwitches(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*emptypb.Empty, error)
 	// Expected switches connected to Explored Endpoints and switches
 	GetAllExpectedSwitchesLinked(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*LinkedExpectedSwitchList, error)
+	// Expected Rack Management
+	// Add expected rack
+	AddExpectedRack(ctx context.Context, in *ExpectedRack, opts ...grpc.CallOption) (*emptypb.Empty, error)
+	// Delete expected rack
+	DeleteExpectedRack(ctx context.Context, in *ExpectedRackRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
+	// Update an expected rack
+	UpdateExpectedRack(ctx context.Context, in *ExpectedRack, opts ...grpc.CallOption) (*emptypb.Empty, error)
+	// Get a specific expected rack
+	GetExpectedRack(ctx context.Context, in *ExpectedRackRequest, opts ...grpc.CallOption) (*ExpectedRack, error)
+	// Get all expected racks
+	GetAllExpectedRacks(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*ExpectedRackList, error)
+	// Replace all expected racks in site
+	ReplaceAllExpectedRacks(ctx context.Context, in *ExpectedRackList, opts ...grpc.CallOption) (*emptypb.Empty, error)
+	// Delete all expected racks in site
+	DeleteAllExpectedRacks(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*emptypb.Empty, error)
 	// Perform Attestation Procedure for Measured Boot
 	AttestQuote(ctx context.Context, in *AttestQuoteRequest, opts ...grpc.CallOption) (*AttestQuoteResponse, error)
 	// InstanceType
@@ -935,6 +963,14 @@ type ForgeClient interface {
 	// SPIFFE Machine Identity APIs
 	// Signs a JWT-SVID token for machine identity
 	SignMachineIdentity(ctx context.Context, in *MachineIdentityRequest, opts ...grpc.CallOption) (*MachineIdentityResponse, error)
+	// Get, set, or delete per-org identity configuration (issuer, audiences, TTL, signing key)
+	GetIdentityConfiguration(ctx context.Context, in *GetIdentityConfigRequest, opts ...grpc.CallOption) (*IdentityConfigResponse, error)
+	SetIdentityConfiguration(ctx context.Context, in *IdentityConfigRequest, opts ...grpc.CallOption) (*IdentityConfigResponse, error)
+	DeleteIdentityConfiguration(ctx context.Context, in *GetIdentityConfigRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
+	// Token delegation: get, set, or delete per-org token exchange config
+	GetTokenDelegation(ctx context.Context, in *GetTokenDelegationRequest, opts ...grpc.CallOption) (*TokenDelegationResponse, error)
+	SetTokenDelegation(ctx context.Context, in *TokenDelegationRequest, opts ...grpc.CallOption) (*TokenDelegationResponse, error)
+	DeleteTokenDelegation(ctx context.Context, in *GetTokenDelegationRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
 	// ScoutStream establishes a bidirectional streaming connection between
 	// scout agents and carbide-api. The initial use-case for this is for
 	// Mellanox device management using forge-admin-cli, but there's an
@@ -2748,6 +2784,76 @@ func (c *forgeClient) GetAllExpectedSwitchesLinked(ctx context.Context, in *empt
 	return out, nil
 }
 
+func (c *forgeClient) AddExpectedRack(ctx context.Context, in *ExpectedRack, opts ...grpc.CallOption) (*emptypb.Empty, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(emptypb.Empty)
+	err := c.cc.Invoke(ctx, Forge_AddExpectedRack_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *forgeClient) DeleteExpectedRack(ctx context.Context, in *ExpectedRackRequest, opts ...grpc.CallOption) (*emptypb.Empty, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(emptypb.Empty)
+	err := c.cc.Invoke(ctx, Forge_DeleteExpectedRack_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *forgeClient) UpdateExpectedRack(ctx context.Context, in *ExpectedRack, opts ...grpc.CallOption) (*emptypb.Empty, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(emptypb.Empty)
+	err := c.cc.Invoke(ctx, Forge_UpdateExpectedRack_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *forgeClient) GetExpectedRack(ctx context.Context, in *ExpectedRackRequest, opts ...grpc.CallOption) (*ExpectedRack, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(ExpectedRack)
+	err := c.cc.Invoke(ctx, Forge_GetExpectedRack_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *forgeClient) GetAllExpectedRacks(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*ExpectedRackList, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(ExpectedRackList)
+	err := c.cc.Invoke(ctx, Forge_GetAllExpectedRacks_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *forgeClient) ReplaceAllExpectedRacks(ctx context.Context, in *ExpectedRackList, opts ...grpc.CallOption) (*emptypb.Empty, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(emptypb.Empty)
+	err := c.cc.Invoke(ctx, Forge_ReplaceAllExpectedRacks_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *forgeClient) DeleteAllExpectedRacks(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*emptypb.Empty, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(emptypb.Empty)
+	err := c.cc.Invoke(ctx, Forge_DeleteAllExpectedRacks_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 func (c *forgeClient) AttestQuote(ctx context.Context, in *AttestQuoteRequest, opts ...grpc.CallOption) (*AttestQuoteResponse, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
 	out := new(AttestQuoteResponse)
@@ -4398,6 +4504,66 @@ func (c *forgeClient) SignMachineIdentity(ctx context.Context, in *MachineIdenti
 	return out, nil
 }
 
+func (c *forgeClient) GetIdentityConfiguration(ctx context.Context, in *GetIdentityConfigRequest, opts ...grpc.CallOption) (*IdentityConfigResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(IdentityConfigResponse)
+	err := c.cc.Invoke(ctx, Forge_GetIdentityConfiguration_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *forgeClient) SetIdentityConfiguration(ctx context.Context, in *IdentityConfigRequest, opts ...grpc.CallOption) (*IdentityConfigResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(IdentityConfigResponse)
+	err := c.cc.Invoke(ctx, Forge_SetIdentityConfiguration_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *forgeClient) DeleteIdentityConfiguration(ctx context.Context, in *GetIdentityConfigRequest, opts ...grpc.CallOption) (*emptypb.Empty, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(emptypb.Empty)
+	err := c.cc.Invoke(ctx, Forge_DeleteIdentityConfiguration_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *forgeClient) GetTokenDelegation(ctx context.Context, in *GetTokenDelegationRequest, opts ...grpc.CallOption) (*TokenDelegationResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(TokenDelegationResponse)
+	err := c.cc.Invoke(ctx, Forge_GetTokenDelegation_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *forgeClient) SetTokenDelegation(ctx context.Context, in *TokenDelegationRequest, opts ...grpc.CallOption) (*TokenDelegationResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(TokenDelegationResponse)
+	err := c.cc.Invoke(ctx, Forge_SetTokenDelegation_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *forgeClient) DeleteTokenDelegation(ctx context.Context, in *GetTokenDelegationRequest, opts ...grpc.CallOption) (*emptypb.Empty, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(emptypb.Empty)
+	err := c.cc.Invoke(ctx, Forge_DeleteTokenDelegation_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 func (c *forgeClient) ScoutStream(ctx context.Context, opts ...grpc.CallOption) (grpc.BidiStreamingClient[ScoutStreamApiBoundMessage, ScoutStreamScoutBoundMessage], error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
 	stream, err := c.cc.NewStream(ctx, &Forge_ServiceDesc.Streams[0], Forge_ScoutStream_FullMethodName, cOpts...)
@@ -5030,6 +5196,21 @@ type ForgeServer interface {
 	DeleteAllExpectedSwitches(context.Context, *emptypb.Empty) (*emptypb.Empty, error)
 	// Expected switches connected to Explored Endpoints and switches
 	GetAllExpectedSwitchesLinked(context.Context, *emptypb.Empty) (*LinkedExpectedSwitchList, error)
+	// Expected Rack Management
+	// Add expected rack
+	AddExpectedRack(context.Context, *ExpectedRack) (*emptypb.Empty, error)
+	// Delete expected rack
+	DeleteExpectedRack(context.Context, *ExpectedRackRequest) (*emptypb.Empty, error)
+	// Update an expected rack
+	UpdateExpectedRack(context.Context, *ExpectedRack) (*emptypb.Empty, error)
+	// Get a specific expected rack
+	GetExpectedRack(context.Context, *ExpectedRackRequest) (*ExpectedRack, error)
+	// Get all expected racks
+	GetAllExpectedRacks(context.Context, *emptypb.Empty) (*ExpectedRackList, error)
+	// Replace all expected racks in site
+	ReplaceAllExpectedRacks(context.Context, *ExpectedRackList) (*emptypb.Empty, error)
+	// Delete all expected racks in site
+	DeleteAllExpectedRacks(context.Context, *emptypb.Empty) (*emptypb.Empty, error)
 	// Perform Attestation Procedure for Measured Boot
 	AttestQuote(context.Context, *AttestQuoteRequest) (*AttestQuoteResponse, error)
 	// InstanceType
@@ -5252,6 +5433,14 @@ type ForgeServer interface {
 	// SPIFFE Machine Identity APIs
 	// Signs a JWT-SVID token for machine identity
 	SignMachineIdentity(context.Context, *MachineIdentityRequest) (*MachineIdentityResponse, error)
+	// Get, set, or delete per-org identity configuration (issuer, audiences, TTL, signing key)
+	GetIdentityConfiguration(context.Context, *GetIdentityConfigRequest) (*IdentityConfigResponse, error)
+	SetIdentityConfiguration(context.Context, *IdentityConfigRequest) (*IdentityConfigResponse, error)
+	DeleteIdentityConfiguration(context.Context, *GetIdentityConfigRequest) (*emptypb.Empty, error)
+	// Token delegation: get, set, or delete per-org token exchange config
+	GetTokenDelegation(context.Context, *GetTokenDelegationRequest) (*TokenDelegationResponse, error)
+	SetTokenDelegation(context.Context, *TokenDelegationRequest) (*TokenDelegationResponse, error)
+	DeleteTokenDelegation(context.Context, *GetTokenDelegationRequest) (*emptypb.Empty, error)
 	// ScoutStream establishes a bidirectional streaming connection between
 	// scout agents and carbide-api. The initial use-case for this is for
 	// Mellanox device management using forge-admin-cli, but there's an
@@ -5869,6 +6058,27 @@ func (UnimplementedForgeServer) DeleteAllExpectedSwitches(context.Context, *empt
 func (UnimplementedForgeServer) GetAllExpectedSwitchesLinked(context.Context, *emptypb.Empty) (*LinkedExpectedSwitchList, error) {
 	return nil, status.Error(codes.Unimplemented, "method GetAllExpectedSwitchesLinked not implemented")
 }
+func (UnimplementedForgeServer) AddExpectedRack(context.Context, *ExpectedRack) (*emptypb.Empty, error) {
+	return nil, status.Error(codes.Unimplemented, "method AddExpectedRack not implemented")
+}
+func (UnimplementedForgeServer) DeleteExpectedRack(context.Context, *ExpectedRackRequest) (*emptypb.Empty, error) {
+	return nil, status.Error(codes.Unimplemented, "method DeleteExpectedRack not implemented")
+}
+func (UnimplementedForgeServer) UpdateExpectedRack(context.Context, *ExpectedRack) (*emptypb.Empty, error) {
+	return nil, status.Error(codes.Unimplemented, "method UpdateExpectedRack not implemented")
+}
+func (UnimplementedForgeServer) GetExpectedRack(context.Context, *ExpectedRackRequest) (*ExpectedRack, error) {
+	return nil, status.Error(codes.Unimplemented, "method GetExpectedRack not implemented")
+}
+func (UnimplementedForgeServer) GetAllExpectedRacks(context.Context, *emptypb.Empty) (*ExpectedRackList, error) {
+	return nil, status.Error(codes.Unimplemented, "method GetAllExpectedRacks not implemented")
+}
+func (UnimplementedForgeServer) ReplaceAllExpectedRacks(context.Context, *ExpectedRackList) (*emptypb.Empty, error) {
+	return nil, status.Error(codes.Unimplemented, "method ReplaceAllExpectedRacks not implemented")
+}
+func (UnimplementedForgeServer) DeleteAllExpectedRacks(context.Context, *emptypb.Empty) (*emptypb.Empty, error) {
+	return nil, status.Error(codes.Unimplemented, "method DeleteAllExpectedRacks not implemented")
+}
 func (UnimplementedForgeServer) AttestQuote(context.Context, *AttestQuoteRequest) (*AttestQuoteResponse, error) {
 	return nil, status.Error(codes.Unimplemented, "method AttestQuote not implemented")
 }
@@ -6363,6 +6573,24 @@ func (UnimplementedForgeServer) FindMachinesUnderAttestation(context.Context, *A
 }
 func (UnimplementedForgeServer) SignMachineIdentity(context.Context, *MachineIdentityRequest) (*MachineIdentityResponse, error) {
 	return nil, status.Error(codes.Unimplemented, "method SignMachineIdentity not implemented")
+}
+func (UnimplementedForgeServer) GetIdentityConfiguration(context.Context, *GetIdentityConfigRequest) (*IdentityConfigResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method GetIdentityConfiguration not implemented")
+}
+func (UnimplementedForgeServer) SetIdentityConfiguration(context.Context, *IdentityConfigRequest) (*IdentityConfigResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method SetIdentityConfiguration not implemented")
+}
+func (UnimplementedForgeServer) DeleteIdentityConfiguration(context.Context, *GetIdentityConfigRequest) (*emptypb.Empty, error) {
+	return nil, status.Error(codes.Unimplemented, "method DeleteIdentityConfiguration not implemented")
+}
+func (UnimplementedForgeServer) GetTokenDelegation(context.Context, *GetTokenDelegationRequest) (*TokenDelegationResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method GetTokenDelegation not implemented")
+}
+func (UnimplementedForgeServer) SetTokenDelegation(context.Context, *TokenDelegationRequest) (*TokenDelegationResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method SetTokenDelegation not implemented")
+}
+func (UnimplementedForgeServer) DeleteTokenDelegation(context.Context, *GetTokenDelegationRequest) (*emptypb.Empty, error) {
+	return nil, status.Error(codes.Unimplemented, "method DeleteTokenDelegation not implemented")
 }
 func (UnimplementedForgeServer) ScoutStream(grpc.BidiStreamingServer[ScoutStreamApiBoundMessage, ScoutStreamScoutBoundMessage]) error {
 	return status.Error(codes.Unimplemented, "method ScoutStream not implemented")
@@ -9540,6 +9768,132 @@ func _Forge_GetAllExpectedSwitchesLinked_Handler(srv interface{}, ctx context.Co
 	return interceptor(ctx, in, info, handler)
 }
 
+func _Forge_AddExpectedRack_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(ExpectedRack)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ForgeServer).AddExpectedRack(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: Forge_AddExpectedRack_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ForgeServer).AddExpectedRack(ctx, req.(*ExpectedRack))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Forge_DeleteExpectedRack_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(ExpectedRackRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ForgeServer).DeleteExpectedRack(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: Forge_DeleteExpectedRack_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ForgeServer).DeleteExpectedRack(ctx, req.(*ExpectedRackRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Forge_UpdateExpectedRack_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(ExpectedRack)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ForgeServer).UpdateExpectedRack(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: Forge_UpdateExpectedRack_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ForgeServer).UpdateExpectedRack(ctx, req.(*ExpectedRack))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Forge_GetExpectedRack_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(ExpectedRackRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ForgeServer).GetExpectedRack(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: Forge_GetExpectedRack_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ForgeServer).GetExpectedRack(ctx, req.(*ExpectedRackRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Forge_GetAllExpectedRacks_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(emptypb.Empty)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ForgeServer).GetAllExpectedRacks(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: Forge_GetAllExpectedRacks_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ForgeServer).GetAllExpectedRacks(ctx, req.(*emptypb.Empty))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Forge_ReplaceAllExpectedRacks_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(ExpectedRackList)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ForgeServer).ReplaceAllExpectedRacks(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: Forge_ReplaceAllExpectedRacks_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ForgeServer).ReplaceAllExpectedRacks(ctx, req.(*ExpectedRackList))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Forge_DeleteAllExpectedRacks_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(emptypb.Empty)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ForgeServer).DeleteAllExpectedRacks(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: Forge_DeleteAllExpectedRacks_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ForgeServer).DeleteAllExpectedRacks(ctx, req.(*emptypb.Empty))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 func _Forge_AttestQuote_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(AttestQuoteRequest)
 	if err := dec(in); err != nil {
@@ -12510,6 +12864,114 @@ func _Forge_SignMachineIdentity_Handler(srv interface{}, ctx context.Context, de
 	return interceptor(ctx, in, info, handler)
 }
 
+func _Forge_GetIdentityConfiguration_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetIdentityConfigRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ForgeServer).GetIdentityConfiguration(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: Forge_GetIdentityConfiguration_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ForgeServer).GetIdentityConfiguration(ctx, req.(*GetIdentityConfigRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Forge_SetIdentityConfiguration_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(IdentityConfigRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ForgeServer).SetIdentityConfiguration(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: Forge_SetIdentityConfiguration_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ForgeServer).SetIdentityConfiguration(ctx, req.(*IdentityConfigRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Forge_DeleteIdentityConfiguration_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetIdentityConfigRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ForgeServer).DeleteIdentityConfiguration(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: Forge_DeleteIdentityConfiguration_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ForgeServer).DeleteIdentityConfiguration(ctx, req.(*GetIdentityConfigRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Forge_GetTokenDelegation_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetTokenDelegationRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ForgeServer).GetTokenDelegation(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: Forge_GetTokenDelegation_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ForgeServer).GetTokenDelegation(ctx, req.(*GetTokenDelegationRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Forge_SetTokenDelegation_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(TokenDelegationRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ForgeServer).SetTokenDelegation(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: Forge_SetTokenDelegation_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ForgeServer).SetTokenDelegation(ctx, req.(*TokenDelegationRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Forge_DeleteTokenDelegation_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetTokenDelegationRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ForgeServer).DeleteTokenDelegation(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: Forge_DeleteTokenDelegation_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ForgeServer).DeleteTokenDelegation(ctx, req.(*GetTokenDelegationRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 func _Forge_ScoutStream_Handler(srv interface{}, stream grpc.ServerStream) error {
 	return srv.(ForgeServer).ScoutStream(&grpc.GenericServerStream[ScoutStreamApiBoundMessage, ScoutStreamScoutBoundMessage]{ServerStream: stream})
 }
@@ -13763,6 +14225,34 @@ var Forge_ServiceDesc = grpc.ServiceDesc{
 			Handler:    _Forge_GetAllExpectedSwitchesLinked_Handler,
 		},
 		{
+			MethodName: "AddExpectedRack",
+			Handler:    _Forge_AddExpectedRack_Handler,
+		},
+		{
+			MethodName: "DeleteExpectedRack",
+			Handler:    _Forge_DeleteExpectedRack_Handler,
+		},
+		{
+			MethodName: "UpdateExpectedRack",
+			Handler:    _Forge_UpdateExpectedRack_Handler,
+		},
+		{
+			MethodName: "GetExpectedRack",
+			Handler:    _Forge_GetExpectedRack_Handler,
+		},
+		{
+			MethodName: "GetAllExpectedRacks",
+			Handler:    _Forge_GetAllExpectedRacks_Handler,
+		},
+		{
+			MethodName: "ReplaceAllExpectedRacks",
+			Handler:    _Forge_ReplaceAllExpectedRacks_Handler,
+		},
+		{
+			MethodName: "DeleteAllExpectedRacks",
+			Handler:    _Forge_DeleteAllExpectedRacks_Handler,
+		},
+		{
 			MethodName: "AttestQuote",
 			Handler:    _Forge_AttestQuote_Handler,
 		},
@@ -14421,6 +14911,30 @@ var Forge_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "SignMachineIdentity",
 			Handler:    _Forge_SignMachineIdentity_Handler,
+		},
+		{
+			MethodName: "GetIdentityConfiguration",
+			Handler:    _Forge_GetIdentityConfiguration_Handler,
+		},
+		{
+			MethodName: "SetIdentityConfiguration",
+			Handler:    _Forge_SetIdentityConfiguration_Handler,
+		},
+		{
+			MethodName: "DeleteIdentityConfiguration",
+			Handler:    _Forge_DeleteIdentityConfiguration_Handler,
+		},
+		{
+			MethodName: "GetTokenDelegation",
+			Handler:    _Forge_GetTokenDelegation_Handler,
+		},
+		{
+			MethodName: "SetTokenDelegation",
+			Handler:    _Forge_SetTokenDelegation_Handler,
+		},
+		{
+			MethodName: "DeleteTokenDelegation",
+			Handler:    _Forge_DeleteTokenDelegation_Handler,
 		},
 		{
 			MethodName: "ScoutStreamShowConnections",
