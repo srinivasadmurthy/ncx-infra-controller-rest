@@ -42,7 +42,12 @@ type Config struct {
 
 // defaultConfig sets up the default values used when something is not specified
 func defaultConfig() Config {
-	return Config{InventoryRunFrequency: time.Minute, GRPCTimeout: time.Minute, UpdateMachineIDsFrequency: time.Hour}
+	return Config{InventoryRunFrequency: time.Minute,
+		GRPCTimeout:               time.Minute,
+		UpdateMachineIDsFrequency: time.Hour,
+		LeakDetectionInterval:     time.Minute,
+		DisableLeakDetection:      false,
+	}
 }
 
 // ReadConfig reads a configuration file if present and returns a Config with the details.  A config file with

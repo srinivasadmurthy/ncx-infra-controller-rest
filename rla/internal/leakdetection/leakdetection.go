@@ -21,6 +21,7 @@ import (
 	"context"
 	"fmt"
 	"os"
+	"time"
 
 	"github.com/rs/zerolog/log"
 
@@ -32,7 +33,7 @@ import (
 // RunLeakDetection will loop and handle various leak detection tasks
 func RunLeakDetection(ctx context.Context, dbConf *cdb.Config) {
 	config := config.ReadConfig()
-	if config.DisableInventory {
+	if config.DisableLeakDetection {
 		log.Info().Msg("Inventory disabled by configuration")
 		return
 	}
@@ -54,6 +55,7 @@ func RunLeakDetection(ctx context.Context, dbConf *cdb.Config) {
 
 	for {
 		runLeakDetectionOne(ctx, &config, carbideClient)
+		time.Sleep(config.LeakDetectionInterval)
 	}
 }
 
