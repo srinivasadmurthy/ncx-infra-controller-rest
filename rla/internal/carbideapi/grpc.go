@@ -106,7 +106,7 @@ func (c *grpcClient) GetMachines(ctx context.Context) ([]MachineDetail, error) {
 
 // GetMachines retrieves all machines known by carbide-api
 // (FindMachineIds + FindMachinesByIds).
-func (c *grpcClient) GetLeakingMachineIds(ctx context.Context) ([]*pb.MachineId, error) {
+func (c *grpcClient) GetLeakingMachineIds(ctx context.Context) ([]string, error) {
 	ctx, cancel := context.WithTimeout(ctx, c.grpcTimeout)
 	defer cancel()
 
@@ -122,7 +122,11 @@ func (c *grpcClient) GetLeakingMachineIds(ctx context.Context) ([]*pb.MachineId,
 		return nil, err
 	}
 
-	return machineIDs.MachineIds, nil
+	ids := make([]string, 0, len(machineIDs.GetMachineIds()))
+	for _, machineID := range machineIDs.GetMachineIds() {
+		ids = append(ids, machineID.GetId())
+	}
+	return ids, nil
 }
 
 // Version returns the version string of carbide-api, mainly as a "ping"

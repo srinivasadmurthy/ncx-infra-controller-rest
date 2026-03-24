@@ -25,13 +25,12 @@ import (
 
 	"github.com/rs/zerolog/log"
 
-	cdb "github.com/NVIDIA/ncx-infra-controller-rest/db/pkg/db"
 	"github.com/NVIDIA/ncx-infra-controller-rest/rla/internal/carbideapi"
 	"github.com/NVIDIA/ncx-infra-controller-rest/rla/internal/config"
 )
 
 // RunLeakDetection will loop and handle various leak detection tasks
-func RunLeakDetection(ctx context.Context, dbConf *cdb.Config) {
+func RunLeakDetection(ctx context.Context) {
 	config := config.ReadConfig()
 	if config.DisableLeakDetection {
 		log.Info().Msg("Leak detection disabled by configuration")
@@ -62,11 +61,6 @@ func RunLeakDetection(ctx context.Context, dbConf *cdb.Config) {
 func runLeakDetectionOne(ctx context.Context, config *config.Config, carbideClient carbideapi.Client) {
 	log.Info().Msg("Running leak detection")
 
-	if config.DisableLeakDetection {
-		log.Info().Msg("Leak detection disabled by configuration")
-		return
-	}
-
 	leakingMachineIds, err := carbideClient.GetLeakingMachineIds(ctx)
 	if err != nil {
 		log.Error().Msgf("Unable to retrieve leaking machine IDs from Carbide: %v", err)
@@ -76,7 +70,7 @@ func runLeakDetectionOne(ctx context.Context, config *config.Config, carbideClie
 	log.Info().Msgf("Found %d leaking machine IDs", len(leakingMachineIds))
 
 	for _, machineID := range leakingMachineIds {
-		log.Info().Msgf("Leaking machine ID: %s", machineID.Id)
+		log.Info().Msgf("Leaking machine ID: %s", machineID)
 		// Call workflow routine to call update power options and to turn off this machine
 	}
 }

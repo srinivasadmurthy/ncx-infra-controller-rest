@@ -53,7 +53,7 @@ func (c *mockClient) GetMachines(ctx context.Context) ([]MachineDetail, error) {
 	return result, nil
 }
 
-func (c *mockClient) GetLeakingMachineIds(ctx context.Context) ([]*MachineId, error) {
+func (c *mockClient) GetLeakingMachineIds(ctx context.Context) ([]string, error) {
 	return nil, nil
 }
 
