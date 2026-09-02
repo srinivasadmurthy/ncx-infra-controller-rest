@@ -72,6 +72,30 @@ func buildInstanceNetworkConfig(auto bool, interfaceConfigs []*cwssaws.InstanceI
 	return nc
 }
 
+var spxAttachmentTypeFromAPI = map[string]cwssaws.SpxAttachmentType{
+	model.SpxAttachmentTypePhysical: cwssaws.SpxAttachmentType_Physical,
+	model.SpxAttachmentTypeVirtual:  cwssaws.SpxAttachmentType_Virtual,
+	model.SpxAttachmentTypeOvn:      cwssaws.SpxAttachmentType_Ovn,
+}
+
+func buildInstanceSpxConfig(spxAttachments []model.APISpxAttachmentCreateRequest) *cwssaws.InstanceSpxConfig {
+	spxAttachmentConfigs := make([]*cwssaws.InstanceSpxAttachment, 0, len(spxAttachments))
+	for _, sac := range spxAttachments {
+		spxAttachmentConfig := &cwssaws.InstanceSpxAttachment{
+			Device:         sac.Device,
+			DeviceInstance: uint32(sac.DeviceInstance),
+			SpxPartitionId: &cwssaws.SpxPartitionId{Value: sac.SpxPartitionID},
+			AttachmentType: spxAttachmentTypeFromAPI[sac.AttachmentType],
+		}
+		if sac.VirtualFunctionID != nil {
+			vfID := uint32(*sac.VirtualFunctionID)
+			spxAttachmentConfig.VirtualFunctionId = &vfID
+		}
+		spxAttachmentConfigs = append(spxAttachmentConfigs, spxAttachmentConfig)
+	}
+	return &cwssaws.InstanceSpxConfig{SpxAttachments: spxAttachmentConfigs}
+}
+
 // NewCreateInstanceHandler initializes and returns a new handler for creating Instance
 func NewCreateInstanceHandler(dbSession *cdb.Session, tc temporalClient.Client, scp *sc.ClientPool, cfg *config.Config) CreateInstanceHandler {
 	return CreateInstanceHandler{
@@ -1574,6 +1598,7 @@ func (cih CreateInstanceHandler) Handle(c echo.Context) error {
 				Nvlink: &cwssaws.InstanceNVLinkConfig{
 					GpuConfigs: nvlInterfaceConfigs,
 				},
+				Spxconfig: buildInstanceSpxConfig(apiRequest.SpxAttachments),
 			},
 			AllowUnhealthyMachine: allowUnhealthyMachine,
 		}
@@ -3530,6 +3555,10 @@ func (uih UpdateInstanceHandler) Handle(c echo.Context) error {
 					GpuConfigs: nvlInterfaceConfigs,
 				},
 			},
+		}
+
+		if apiRequest.SpxAttachments != nil {
+			updateInstanceRequest.Config.Spxconfig = buildInstanceSpxConfig(apiRequest.SpxAttachments)
 		}
 
 		workflowOptions := temporalClient.StartWorkflowOptions{

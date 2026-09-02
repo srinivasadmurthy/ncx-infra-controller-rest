@@ -2430,6 +2430,28 @@ message InstanceConfig {
   // Configures instance nvlink partitions
   InstanceNVLinkConfig nvlink = 24;
 
+  // Configures instance SPX partition attachments
+  InstanceSpxConfig spxconfig = 25;
+
+}
+
+// Desired SPX configuration for an instance
+message InstanceSpxConfig {
+  repeated InstanceSpxAttachment spx_attachments = 1;
+}
+
+enum SpxAttachmentType {
+  Physical = 0;
+  Virtual = 1;
+  Ovn = 2;
+}
+
+message InstanceSpxAttachment {
+  string device = 1;
+  uint32 device_instance = 2;
+  common.SpxPartitionId spx_partition_id = 3;
+  SpxAttachmentType attachment_type = 4;
+  optional uint32 virtual_function_id = 5;
 }
 
 // Desired network configuration for an instance
